@@ -1,0 +1,16 @@
+include layout_head
+
+main.bs-docs-masthead(id="content", role="main")
+  .container
+    
+    p
+      select#retrieveType.form-control.input-lg
+        option(value="all",selected="selected")= "All"
+        option(value="basic")= "Basic"
+        option(value="advance")= "Advance"
+    p.text-center
+      button#retrieve.btn.btn-lg.btn-danger retrieve  
+    #executor.well
+        
+
+include layout_footer

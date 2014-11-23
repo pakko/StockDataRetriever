@@ -1,0 +1,15 @@
+footer.bs-docs-footer
+  .container
+    p @Pakko
+
+script(src="/js/lib/jquery-1.11.1.min.js")
+script(src="/js/lib/jquery-ui.min.js")
+script(src="/js/lib/bootstrap.min.js")
+script(src="/js/lib/prettify.js")
+script(src="/js/ua-parser.min.js")
+script(src="/js/tablesort.min.js")
+- if (executor === true)
+  script(src="/socket.io/socket.io.js")
+  script(src="/js/executor.js")
+- else if (viewer === true)
+  script(src="js/viewer.js")

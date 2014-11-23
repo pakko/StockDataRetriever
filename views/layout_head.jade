@@ -1,0 +1,32 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title joola
+
+    link(rel="stylesheet", href="css/lib/jquery-ui.min.css")
+    link(rel="stylesheet", href="css/lib/bootstrap.min.css")
+    link(rel="stylesheet", href="css/lib/prettify.css")
+    link(rel="stylesheet", href="css/lib/pretty.css")
+    link(rel="stylesheet", href="css/site.css")
+      
+  
+  body
+    nav.navbar(role="navigation", class="navbar-default")
+      .container
+        .navbar-header
+          button.navbar-toggle(type="button", data-toggle="collapse", data-target="#main-nav")
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href="/") Stock Data Retriever
+        .collapse.navbar-collapse(id="main-nav")
+          ul.nav.navbar-nav
+            li
+              a(href="/executor") Task Executor
+            li
+              a(href="/viewer") Data Viewer
