@@ -12,7 +12,7 @@
         "fs": "*",
         "moment": "*",
         "async": "*",
-        "unirest": "*"
+        "simple-json2csv": "*"
     },
     "engines": {
         "node": "0.8.4",

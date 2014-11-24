@@ -3,17 +3,108 @@ var fs = require('fs');
 var mongo = require('mongodb');
 var moment = require('moment');
 var async = require('async');
+var SimpleJson2Csv = require('simple-json2csv');
 
 var STOCK_CODES_PATH = './data/corp_codes.txt';
-var DB_NAME = 'sdr';
-var STOCK_TABLE = 'basic';
+var COMBINE_DATA_PATH = './data/generated_data';
+var DB_NAME = 'stock';
+var STOCK_BASIC_TABLE = 'basic';
 var STOCK_ADVANCE_TABLE = 'advance';
 var TRANSFER_BASIC_TABLE = 'transfer_basic';
 var TRANSFER_ADVANCE_TABLE = 'transfer_advance';
 
+var TRANSFER_START_DATE = '2013-01-01';
+var MONGO_HOST = 'localhost';
+
 var stockCodes;
 var db;
 var dates;
+
+var fields = [
+	{"name": "code", "header": "code"},
+	{"name": "date", "header": "date"},
+	{"name": "ma", "header": "ma"},
+	{"name": "ma5", "header": "ma5"},
+	{"name": "ma10", "header": "ma10"},
+	{"name": "ma20", "header": "ma20"},
+	{"name": "ma30", "header": "ma30"},
+	{"name": "ma60", "header": "ma60"},
+	{"name": "ma90", "header": "ma90"},
+	{"name": "ma120", "header": "ma120"},
+	{"name": "hsl", "header": "hsl"},
+	{"name": "hsl5", "header": "hsl5"},
+	{"name": "hsl10", "header": "hsl10"},
+	{"name": "hsl20", "header": "hsl20"},
+	{"name": "hsl30", "header": "hsl30"},
+	{"name": "hsl60", "header": "hsl60"},
+	{"name": "hsl90", "header": "hsl90"},
+	{"name": "hsl120", "header": "hsl120"},
+	{"name": "up", "header": "up"},
+	{"name": "up5", "header": "up5"},
+	{"name": "up10", "header": "up10"},
+	{"name": "up20", "header": "up20"},
+	{"name": "up30", "header": "up30"},
+	{"name": "up60", "header": "up60"},
+	{"name": "up90", "header": "up90"},
+	{"name": "up120", "header": "up120"},
+	{"name": "_id", "header": "id"},
+	{"name": "szindex", "header": "szindex"},
+	{"name": "szindex5", "header": "szindex5"},
+	{"name": "szindex10", "header": "szindex10"},
+	{"name": "szindex20", "header": "szindex20"},
+	{"name": "szindex30", "header": "szindex30"},
+	{"name": "szindex60", "header": "szindex60"},
+	{"name": "szindex90", "header": "szindex90"},
+	{"name": "szindex120", "header": "szindex120"},
+	{"name": "ddx", "header": "ddx"},
+	{"name": "ddx5", "header": "ddx5"},
+	{"name": "ddx10", "header": "ddx10"},
+	{"name": "ddx20", "header": "ddx20"},
+	{"name": "ddx30", "header": "ddx30"},
+	{"name": "ddx60", "header": "ddx60"},
+	{"name": "ddx90", "header": "ddx90"},
+	{"name": "ddx120", "header": "ddx120"},
+	{"name": "pddx", "header": "pddx"},
+	{"name": "pddx5", "header": "pddx5"},
+	{"name": "pddx10", "header": "pddx10"},
+	{"name": "pddx20", "header": "pddx20"},
+	{"name": "pddx30", "header": "pddx30"},
+	{"name": "pddx60", "header": "pddx60"},
+	{"name": "pddx90", "header": "pddx90"},
+	{"name": "pddx120", "header": "pddx120"},
+	{"name": "fund", "header": "fund"},
+	{"name": "fund5", "header": "fund5"},
+	{"name": "fund10", "header": "fund10"},
+	{"name": "fund20", "header": "fund20"},
+	{"name": "fund30", "header": "fund30"},
+	{"name": "fund60", "header": "fund60"},
+	{"name": "fund90", "header": "fund90"},
+	{"name": "fund120", "header": "fund120"},
+	{"name": "pfund", "header": "pfund"},
+	{"name": "pfund5", "header": "pfund5"},
+	{"name": "pfund10", "header": "pfund10"},
+	{"name": "pfund20", "header": "pfund20"},
+	{"name": "pfund30", "header": "pfund30"},
+	{"name": "pfund60", "header": "pfund60"},
+	{"name": "pfund90", "header": "pfund90"},
+	{"name": "pfund120", "header": "pfund120"},
+	{"name": "hide", "header": "hide"},
+	{"name": "hide5", "header": "hide5"},
+	{"name": "hide10", "header": "hide10"},
+	{"name": "hide20", "header": "hide20"},
+	{"name": "hide30", "header": "hide30"},
+	{"name": "hide60", "header": "hide60"},
+	{"name": "hide90", "header": "hide90"},
+	{"name": "hide120", "header": "hide120"},
+	{"name": "phide", "header": "phide"},
+	{"name": "phide5", "header": "phide5"},
+	{"name": "phide10", "header": "phide10"},
+	{"name": "phide20", "header": "phide20"},
+	{"name": "phide30", "header": "phide30"},
+	{"name": "phide60", "header": "phide60"},
+	{"name": "phide90", "header": "phide90"},
+	{"name": "phide120", "header": "phide120"}
+];
 
 exports.init = function () {
 	//load stock codes first
@@ -22,19 +113,19 @@ exports.init = function () {
 	console.log('Load Stock Codes ready');
 	
 	//load transfer dates
-	var begin = '2014-01-01';
+	//var begin = '2013-01-01';
 	var end = moment().format('YYYY-MM-DD');
-	dates = getWorkingDays(begin, end);
-	console.log('Load Transfer dates ready, from ' + begin + ' to ' + end);
+	dates = getWorkingDays(TRANSFER_START_DATE, end);
+	console.log('Load Transfer dates ready, from ' + TRANSFER_START_DATE + ' to ' + end);
 	
 	//connect to db
 	var Server = mongo.Server;
     var Db = mongo.Db;
-	var server = new Server('10.74.68.13', 27017, {auto_reconnect: true});
+	var server = new Server(MONGO_HOST, 27017, {auto_reconnect: true});
 	db = new Db(DB_NAME, server);
 	db.open(function(err, db) {
 	    if(!err) {
-	    	db.collection(STOCK_TABLE).ensureIndex({ code: 1, date: -1 },  { unique: true });
+	    	db.collection(STOCK_BASIC_TABLE).ensureIndex({ code: 1, date: -1 },  { unique: true });
 	    	db.collection(STOCK_ADVANCE_TABLE).ensureIndex({ code: 1, date: -1 },  { unique: true });
 			db.collection(TRANSFER_BASIC_TABLE).ensureIndex({ code: 1, date: -1 },  { unique: true });
 			db.collection(TRANSFER_ADVANCE_TABLE).ensureIndex({ code: 1, date: -1 },  { unique: true });
@@ -62,18 +153,94 @@ function getWorkingDays(startDate, endDate) {
 function getDaysBetween(startDate, endDate) {
 	return (endDate - startDate) / (1000*3600*24) + 1;
 };
+
+function extendObj(o, n, override) {
+	for ( var p in n){
+		if (n.hasOwnProperty(p) && (!o.hasOwnProperty(p) || override)) {
+			o[p] = n[p];
+		}
+	}
+};
 	
 exports.setup = function (app, io) {
 	exports.init();
 	
+	var combineTransferedData = function (codes, maincb) {
+		async.each(codes, function(code, mapcb) {
+			//1, get all transfer basic data;
+			//2, add sz index;
+			//3, add all transfer advance data.
+			async.waterfall([ function(cb) {
+				db.collection(TRANSFER_BASIC_TABLE).find({"code" : code}).sort({"date" : -1}).toArray(function(err, result) {
+					if (!err) {
+						cb(null, result);
+					}
+				});
+
+			}, function(data, cb) {
+				async.map(data, function(obj, callback) {
+					db.collection(TRANSFER_BASIC_TABLE).find({"code" : "sh000001", "date": obj.date}).toArray(function(err, result) {
+						if (!err) {
+							obj.szindex = result[0].ma;
+							obj.szindex5 = result[0].ma5;
+							obj.szindex10 = result[0].ma10;
+							obj.szindex20 = result[0].ma20;
+							obj.szindex30 = result[0].ma30;
+							obj.szindex60 = result[0].ma60;
+							obj.szindex90 = result[0].ma90;
+							obj.szindex120 = result[0].ma120;
+							callback(null, obj);
+						}
+					});
+				}, function(err, res) {
+					if (!err) {
+						cb(null, res);
+					}
+				});
+				
+			}, function(data, cb) {
+				async.map(data, function(obj, callback) {
+					db.collection(TRANSFER_ADVANCE_TABLE).find({"code" : obj.code, "date": obj.date}).toArray(function(err, result) {
+						if (!err) {
+							oldObj = result[0];
+							delete oldObj.id;
+							delete oldObj.code;
+							delete oldObj.date;
+							
+							obj.date = moment(obj.date).format('YYYY/MM/DD');
+							extendObj(obj, oldObj);
+							callback(null, obj);
+						}
+					});
+				}, function(err, res) {
+					if (!err) {
+						cb(null, res);
+					}
+				});
+			} ], function(err, result) {
+				if(!err) {
+					var data = {};
+					data.fields = fields;
+					data.data = JSON.parse(JSON.stringify(result));
+					var json2Csv = new SimpleJson2Csv(data);
+					json2Csv.pipe(fs.createWriteStream(COMBINE_DATA_PATH + '/' + result[0].code + '.csv'));
+					mapcb();
+				}
+				
+			});
+		}, function(err) {
+			console.log('Generate Data Task Finished!');
+			io.emit('executor', 'Generate Data Task Finished!');
+			maincb();
+		});
+		
+	};
+	
 	app.get('/api/viewer/:code', function (req, res) {
 		var code = req.params.code;
-		//res.json({name: 1000});
-		db.collection(TRANSFER_BASIC_TABLE).find({"code": code}).sort({"date": -1}).toArray(function(err, result) {
-			if (!err) {
-				res.json(result);
-			}
-		});
+		
+		res.json({name: 1000});
+		
 	});
 	
 	var KDailyUrl = "http://api.finance.ifeng.com/index.php/akdaily/?code=";
@@ -166,7 +333,7 @@ exports.setup = function (app, io) {
 	};
 	
 	var doTransferBasic = function(code, date, callback) {
-		db.collection(STOCK_TABLE).find({"code": code, "date": {$lte: date}}).sort({"date": -1}).toArray(function(err, result) {
+		db.collection(STOCK_BASIC_TABLE).find({"code": code, "date": {$lte: date}}).sort({"date": -1}).toArray(function(err, result) {
 			if (!err) {
 				var stockList = result;
 				
@@ -181,7 +348,7 @@ exports.setup = function (app, io) {
 				obj.ma20 = getDaysOfAveragePrice(stockList, 20);
 				obj.ma30 = getDaysOfAveragePrice(stockList, 30);
 				obj.ma60 = getDaysOfAveragePrice(stockList, 60);
-				obj.ma60 = getDaysOfAveragePrice(stockList, 90);
+				obj.ma90 = getDaysOfAveragePrice(stockList, 90);
 				obj.ma120 = getDaysOfAveragePrice(stockList, 120);
 				
 				//2, calculate hsl
@@ -230,7 +397,7 @@ exports.setup = function (app, io) {
 				obj.ddx20 = getDaysOfDDX(stockList, 20);
 				obj.ddx30 = getDaysOfDDX(stockList, 30);
 				obj.ddx60 = getDaysOfDDX(stockList, 60);
-				obj.ddx60 = getDaysOfDDX(stockList, 90);
+				obj.ddx90 = getDaysOfDDX(stockList, 90);
 				obj.ddx120 = getDaysOfDDX(stockList, 120);
 				
 				//2, calculate positive ddx
@@ -240,7 +407,7 @@ exports.setup = function (app, io) {
 				obj.pddx20 = getDaysOfPositiveDDX(stockList, 20);
 				obj.pddx30 = getDaysOfPositiveDDX(stockList, 30);
 				obj.pddx60 = getDaysOfPositiveDDX(stockList, 60);
-				obj.pddx60 = getDaysOfPositiveDDX(stockList, 90);
+				obj.pddx90 = getDaysOfPositiveDDX(stockList, 90);
 				obj.pddx120 = getDaysOfPositiveDDX(stockList, 120);
 				
 				//3, fund intensity
@@ -349,7 +516,7 @@ exports.setup = function (app, io) {
 			}
 			//console.log(stockObj);
 			
-			db.collection(STOCK_TABLE).insert(stockObj, {w:1}, function(err, result) {
+			db.collection(STOCK_BASIC_TABLE).insert(stockObj, {w:1}, function(err, result) {
 				if (err) {
 	                console.log('Error occurred when insert stock' + err);
 	            }
@@ -390,6 +557,9 @@ exports.setup = function (app, io) {
 				}, function(callback) {
 					io.emit('executor', "Executing transfer advance task...");
 					transferAdvance(stockCodes, dates, callback);
+				}, function(callback) {
+					io.emit('executor', "Generating data task...");
+					combineTransferedData(stockCodes, callback);
 				} 
 				],
 				function(err) {
@@ -415,8 +585,10 @@ exports.setup = function (app, io) {
 				io.emit('executor', "Executing transfer advance task...");
 				transferAdvance(stockCodes, dates, function(){});
 			}
-			
-			
+			else if(msg == 'generate_data'){
+				io.emit('executor', "Generating data task...");
+				combineTransferedData(stockCodes, function(){});
+			}
 		});
 	});
 	
