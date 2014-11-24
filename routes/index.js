@@ -1,4 +1,3 @@
-tingodb = require('tingodb');
 
 exports.setup = function (app) {
 
@@ -12,15 +11,6 @@ exports.setup = function (app) {
 		res.render('viewer', {viewer: true});
 	});
 };
-
-exports.db = function () {
-	var Engine = tingodb();
-	var db = new Engine.Db('e:/testdb', {});
-	var collection = db.collection("stock");
-	collection.findOne({hello:'world_safe2'}, function(err, item) {
-	    console.log(item);
-	});
-}
 /*--------------------------------------------------------------------------------------------------------------------*/
 // Populate database with sample data -- Only used once: the first time the application is started.
 // You'd typically not find this code in a real-life app, since the database would already exist.
