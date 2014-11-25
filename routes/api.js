@@ -371,6 +371,7 @@ exports.setup = function (app, io) {
 	var transferBasic = function(codes, dates, cb) {
 		async.each(dates, function(date, callback1) {
 			async.eachSeries(codes, function(code, callback2) {
+				code = code.trim();
 				var d = moment(date, 'YYYY-MM-DD').unix() * 1000;
 				doTransferBasic(code, d, callback2);
 			}, function(err) {
@@ -393,6 +394,7 @@ exports.setup = function (app, io) {
 	var transferAdvance = function(codes, dates, cb) {
 		async.each(dates, function(date, callback1) {
 			async.eachSeries(codes, function(code, callback2) {
+				code = code.trim();
 				var d = moment(date, 'YYYY-MM-DD').unix() * 1000;
 				doTransferAdvance(code, d, callback2);
 			}, function(err) {
