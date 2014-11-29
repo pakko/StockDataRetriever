@@ -20,9 +20,11 @@ var stockCodes;
 var db;
 var dates;
 
-var fields = [
+var CSV_FIELDS = [
 	{"name": "code", "header": "code"},
 	{"name": "date", "header": "date"},
+	{"name": "positive", "header": "positive"},
+	
 	{"name": "ma", "header": "ma"},
 	{"name": "ma5", "header": "ma5"},
 	{"name": "ma10", "header": "ma10"},
@@ -31,6 +33,7 @@ var fields = [
 	{"name": "ma60", "header": "ma60"},
 	{"name": "ma90", "header": "ma90"},
 	{"name": "ma120", "header": "ma120"},
+	
 	{"name": "hsl", "header": "hsl"},
 	{"name": "hsl5", "header": "hsl5"},
 	{"name": "hsl10", "header": "hsl10"},
@@ -39,6 +42,7 @@ var fields = [
 	{"name": "hsl60", "header": "hsl60"},
 	{"name": "hsl90", "header": "hsl90"},
 	{"name": "hsl120", "header": "hsl120"},
+	
 	{"name": "up", "header": "up"},
 	{"name": "up5", "header": "up5"},
 	{"name": "up10", "header": "up10"},
@@ -47,27 +51,7 @@ var fields = [
 	{"name": "up60", "header": "up60"},
 	{"name": "up90", "header": "up90"},
 	{"name": "up120", "header": "up120"},
-	{"name": "discretema5", "header": "discretema5"},
-	{"name": "discretema10", "header": "discretema10"},
-	{"name": "discretema20", "header": "discretema20"},
-	{"name": "discretema30", "header": "discretema30"},
-	{"name": "discretema60", "header": "discretema60"},
-	{"name": "discretema90", "header": "discretema90"},
-	{"name": "discretema120", "header": "discretema120"},
-	{"name": "discretehsl5", "header": "discretehsl5"},
-	{"name": "discretehsl10", "header": "discretehsl10"},
-	{"name": "discretehsl20", "header": "discretehsl20"},
-	{"name": "discretehsl30", "header": "discretehsl30"},
-	{"name": "discretehsl60", "header": "discretehsl60"},
-	{"name": "discretehsl90", "header": "discretehsl90"},
-	{"name": "discretehsl120", "header": "discretehsl120"},
-	{"name": "discreteup5", "header": "discreteup5"},
-	{"name": "discreteup10", "header": "discreteup10"},
-	{"name": "discreteup20", "header": "discreteup20"},
-	{"name": "discreteup30", "header": "discreteup30"},
-	{"name": "discreteup60", "header": "discreteup60"},
-	{"name": "discreteup90", "header": "discreteup90"},
-	{"name": "discreteup120", "header": "discreteup120"},
+	
 	{"name": "szindex", "header": "szindex"},
 	{"name": "szindex5", "header": "szindex5"},
 	{"name": "szindex10", "header": "szindex10"},
@@ -76,13 +60,7 @@ var fields = [
 	{"name": "szindex60", "header": "szindex60"},
 	{"name": "szindex90", "header": "szindex90"},
 	{"name": "szindex120", "header": "szindex120"},
-	{"name": "discreteszindex5", "header": "discreteszindex5"},
-	{"name": "discreteszindex10", "header": "discreteszindex10"},
-	{"name": "discreteszindex20", "header": "discreteszindex20"},
-	{"name": "discreteszindex30", "header": "discreteszindex30"},
-	{"name": "discreteszindex60", "header": "discreteszindex60"},
-	{"name": "discreteszindex90", "header": "discreteszindex90"},
-	{"name": "discreteszindex120", "header": "discreteszindex120"},
+	
 	{"name": "ddx", "header": "ddx"},
 	{"name": "ddx5", "header": "ddx5"},
 	{"name": "ddx10", "header": "ddx10"},
@@ -91,6 +69,7 @@ var fields = [
 	{"name": "ddx60", "header": "ddx60"},
 	{"name": "ddx90", "header": "ddx90"},
 	{"name": "ddx120", "header": "ddx120"},
+	
 	{"name": "pddx", "header": "pddx"},
 	{"name": "pddx5", "header": "pddx5"},
 	{"name": "pddx10", "header": "pddx10"},
@@ -99,6 +78,7 @@ var fields = [
 	{"name": "pddx60", "header": "pddx60"},
 	{"name": "pddx90", "header": "pddx90"},
 	{"name": "pddx120", "header": "pddx120"},
+	
 	{"name": "fund", "header": "fund"},
 	{"name": "fund5", "header": "fund5"},
 	{"name": "fund10", "header": "fund10"},
@@ -107,6 +87,7 @@ var fields = [
 	{"name": "fund60", "header": "fund60"},
 	{"name": "fund90", "header": "fund90"},
 	{"name": "fund120", "header": "fund120"},
+	
 	{"name": "pfund", "header": "pfund"},
 	{"name": "pfund5", "header": "pfund5"},
 	{"name": "pfund10", "header": "pfund10"},
@@ -115,6 +96,7 @@ var fields = [
 	{"name": "pfund60", "header": "pfund60"},
 	{"name": "pfund90", "header": "pfund90"},
 	{"name": "pfund120", "header": "pfund120"},
+	
 	{"name": "hide", "header": "hide"},
 	{"name": "hide5", "header": "hide5"},
 	{"name": "hide10", "header": "hide10"},
@@ -123,6 +105,7 @@ var fields = [
 	{"name": "hide60", "header": "hide60"},
 	{"name": "hide90", "header": "hide90"},
 	{"name": "hide120", "header": "hide120"},
+	
 	{"name": "phide", "header": "phide"},
 	{"name": "phide5", "header": "phide5"},
 	{"name": "phide10", "header": "phide10"},
@@ -131,6 +114,41 @@ var fields = [
 	{"name": "phide60", "header": "phide60"},
 	{"name": "phide90", "header": "phide90"},
 	{"name": "phide120", "header": "phide120"},
+	
+	{"name": "", "header": ""},
+	{"name": "discretema", "header": "discretema"},
+	{"name": "discretema5", "header": "discretema5"},
+	{"name": "discretema10", "header": "discretema10"},
+	{"name": "discretema20", "header": "discretema20"},
+	{"name": "discretema30", "header": "discretema30"},
+	{"name": "discretema60", "header": "discretema60"},
+	{"name": "discretema90", "header": "discretema90"},
+	
+	{"name": "discretehsl", "header": "discretehsl"},
+	{"name": "discretehsl5", "header": "discretehsl5"},
+	{"name": "discretehsl10", "header": "discretehsl10"},
+	{"name": "discretehsl20", "header": "discretehsl20"},
+	{"name": "discretehsl30", "header": "discretehsl30"},
+	{"name": "discretehsl60", "header": "discretehsl60"},
+	{"name": "discretehsl90", "header": "discretehsl90"},
+	
+	{"name": "discreteup", "header": "discreteup"},
+	{"name": "discreteup5", "header": "discreteup5"},
+	{"name": "discreteup10", "header": "discreteup10"},
+	{"name": "discreteup20", "header": "discreteup20"},
+	{"name": "discreteup30", "header": "discreteup30"},
+	{"name": "discreteup60", "header": "discreteup60"},
+	{"name": "discreteup90", "header": "discreteup90"},
+	
+	{"name": "discreteszindex", "header": "discreteszindex"},
+	{"name": "discreteszindex5", "header": "discreteszindex5"},
+	{"name": "discreteszindex10", "header": "discreteszindex10"},
+	{"name": "discreteszindex20", "header": "discreteszindex20"},
+	{"name": "discreteszindex30", "header": "discreteszindex30"},
+	{"name": "discreteszindex60", "header": "discreteszindex60"},
+	{"name": "discreteszindex90", "header": "discreteszindex90"},
+	
+	{"name": "discreteddx", "header": "discreteddx"},
 	{"name": "discreteddx5", "header": "discreteddx5"},
 	{"name": "discreteddx10", "header": "discreteddx10"},
 	{"name": "discreteddx20", "header": "discreteddx20"},
@@ -138,6 +156,8 @@ var fields = [
 	{"name": "discreteddx60", "header": "discreteddx60"},
 	{"name": "discreteddx90", "header": "discreteddx90"},
 	{"name": "discreteddx120", "header": "discreteddx120"},
+	
+	{"name": "discretepddx", "header": "discretepddx"},
 	{"name": "discretepddx5", "header": "discretepddx5"},
 	{"name": "discretepddx10", "header": "discretepddx10"},
 	{"name": "discretepddx20", "header": "discretepddx20"},
@@ -145,6 +165,8 @@ var fields = [
 	{"name": "discretepddx60", "header": "discretepddx60"},
 	{"name": "discretepddx90", "header": "discretepddx90"},
 	{"name": "discretepddx120", "header": "discretepddx120"},
+	
+	{"name": "discretefund", "header": "discretefund"},
 	{"name": "discretefund5", "header": "discretefund5"},
 	{"name": "discretefund10", "header": "discretefund10"},
 	{"name": "discretefund20", "header": "discretefund20"},
@@ -152,6 +174,8 @@ var fields = [
 	{"name": "discretefund60", "header": "discretefund60"},
 	{"name": "discretefund90", "header": "discretefund90"},
 	{"name": "discretefund120", "header": "discretefund120"},
+	
+	{"name": "discretepfund", "header": "discretepfund"},
 	{"name": "discretepfund5", "header": "discretepfund5"},
 	{"name": "discretepfund10", "header": "discretepfund10"},
 	{"name": "discretepfund20", "header": "discretepfund20"},
@@ -159,6 +183,8 @@ var fields = [
 	{"name": "discretepfund60", "header": "discretepfund60"},
 	{"name": "discretepfund90", "header": "discretepfund90"},
 	{"name": "discretepfund120", "header": "discretepfund120"},
+	
+	{"name": "discretehide", "header": "discretehide"},
 	{"name": "discretehide5", "header": "discretehide5"},
 	{"name": "discretehide10", "header": "discretehide10"},
 	{"name": "discretehide20", "header": "discretehide20"},
@@ -166,6 +192,8 @@ var fields = [
 	{"name": "discretehide60", "header": "discretehide60"},
 	{"name": "discretehide90", "header": "discretehide90"},
 	{"name": "discretehide120", "header": "discretehide120"},
+	
+	{"name": "discretephide", "header": "discretephide"},
 	{"name": "discretephide5", "header": "discretephide5"},
 	{"name": "discretephide10", "header": "discretephide10"},
 	{"name": "discretephide20", "header": "discretephide20"},
@@ -175,10 +203,14 @@ var fields = [
 	{"name": "discretephide120", "header": "discretephide120"}
 ];
 
+var HOLIDAYS = ["2012-01-02", "2012-01-03", "2012-01-23", "2012-01-24", "2012-01-25", "2012-01-26", "2012-01-27", "2012-04-02", "2012-04-03", "2012-04-04", "2012-04-30", "2012-05-01", "2012-05-02", "2012-06-22", "2012-10-01", "2012-10-02", "2012-10-03", "2012-10-04", "2012-10-05",
+                "2013-01-01", "2013-01-02", "2013-01-03", "2013-02-11", "2013-02-12", "2013-02-13", "2013-02-14", "2013-02-15", "2013-04-04", "2013-04-05", "2013-04-29", "2013-04-30", "2013-05-01", "2013-06-10", "2013-06-11", "2013-06-12", "2013-09-19", "2013-09-20", "2013-10-01", "2013-10-02", "2013-10-03", "2013-10-04", "2013-10-07",
+                "2014-01-01", "2014-01-31", "2014-02-01", "2014-02-02", "2014-02-03", "2014-02-04", "2014-02-05", "2014-02-06", "2014-04-07", "2014-05-01", "2014-05-02", "2014-05-03", "2014-06-02", "2014-09-08", "2014-10-01", "2014-10-02", "2014-10-03", "2014-10-04", "2014-10-05", "2014-10-06", "2014-10-07"];
+
 exports.init = function () {
 	//load stock codes first
 	stockCodes = fs.readFileSync(STOCK_CODES_PATH).toString().split("\n");
-	//stockCodes = ['sh000001', 'sh600283','sz002363'];
+	//stockCodes = ['sh000001', 'sz000709'];
 	console.log('Load Stock Codes ready');
 	
 	//load transfer dates
@@ -201,20 +233,33 @@ exports.init = function () {
 	        console.log("Connected to 'stock' database");
 	    }
 	});
-	
+};
+
+function isHolidayOrWeekend(date) {
+	var day = new Date(date).getDay();
+	if(day == 0 || day == 6) {
+		return true;
+	}
+	//if date is holiday, return true
+	if(HOLIDAYS.toString().indexOf(date) != -1) {
+		return true;
+	}
+	return false;
 };
 
 function getWorkingDays(startDate, endDate) {
-	var startM = moment(startDate, 'YYYY-MM-DD');
-	var endM = moment(endDate, 'YYYY-MM-DD');
+	var start = new Date(startDate);
+	var end = new Date(endDate);
 	
-	var days = getDaysBetween(startM.unix() * 1000, endM.unix() * 1000);
+	var days = getDaysBetween(start.getTime(), end.getTime());
 	
 	var dateList = [];
 	for(var i = 0; i < days; i++) {
-		var date = startM.format('YYYY-MM-DD');
-		dateList.push(date);
-		startM.add(1, 'days');
+		var date = moment(start).format('YYYY-MM-DD');
+		if(!isHolidayOrWeekend(date)){
+			dateList.push(date);
+		}
+		start.setDate(start.getDate() + 1);
 	}
 	return dateList;
 };
@@ -230,12 +275,13 @@ function extendObj(o, n, override) {
 		}
 	}
 };
-	
+
 exports.setup = function (app, io) {
 	exports.init();
 	
 	var combineTransferedData = function (codes, maincb) {
 		async.eachSeries(codes, function(code, mapcb) {
+			code = code.trim();
 			//1, get all transfer basic data;
 			//2, add sz index;
 			//3, add all transfer advance data.
@@ -259,13 +305,13 @@ exports.setup = function (app, io) {
 							obj.szindex90 = result[0].ma90;
 							obj.szindex120 = result[0].ma120;
 							
-							obj.discreteszindex5 = getDiscrete(obj.szindex, obj.szindex5);
-							obj.discreteszindex10 = getDiscrete(obj.szindex5, obj.szindex10);
-							obj.discreteszindex20 = getDiscrete(obj.szindex10, obj.szindex20);
-							obj.discreteszindex30 = getDiscrete(obj.szindex20, obj.szindex30);
-							obj.discreteszindex60 = getDiscrete(obj.szindex30, obj.szindex60);
-							obj.discreteszindex90 = getDiscrete(obj.szindex60, obj.szindex90);
-							obj.discreteszindex120 = getDiscrete(obj.szindex90, obj.szindex120);
+							obj.discreteszindex = getDiscrete(obj.szindex, obj.szindex5);
+							obj.discreteszindex5 = getDiscrete(obj.szindex5, obj.szindex10);
+							obj.discreteszindex10 = getDiscrete(obj.szindex10, obj.szindex20);
+							obj.discreteszindex20 = getDiscrete(obj.szindex20, obj.szindex30);
+							obj.discreteszindex30 = getDiscrete(obj.szindex30, obj.szindex60);
+							obj.discreteszindex60 = getDiscrete(obj.szindex60, obj.szindex90);
+							obj.discreteszindex90 = getDiscrete(obj.szindex90, obj.szindex120);
 							
 							delete obj.id;
 							
@@ -299,14 +345,15 @@ exports.setup = function (app, io) {
 				});
 			} ], function(err, result) {
 				if(!err) {
-					var data = {};
-					data.fields = fields;
-					data.data = JSON.parse(JSON.stringify(result));
-					var json2Csv = new SimpleJson2Csv(data);
-					json2Csv.pipe(fs.createWriteStream(COMBINE_DATA_PATH + '/' + result[0].code + '.csv'));
+					if(result[0].code != '') {
+						var data = {};
+						data.fields = CSV_FIELDS;
+						data.data = JSON.parse(JSON.stringify(result));
+						var json2Csv = new SimpleJson2Csv(data);
+						json2Csv.pipe(fs.createWriteStream(COMBINE_DATA_PATH + '/' + result[0].code + '.csv'));
+					}
 					mapcb();
 				}
-				
 			});
 		}, function(err) {
 			console.log('Generate Data Task Finished!');
@@ -317,7 +364,20 @@ exports.setup = function (app, io) {
 	};
 	
 	app.get('/api/viewer/:code', function (req, res) {
-		var code = req.params.code;
+		
+		async.eachSeries(stockCodes, function(code, mapcb) {
+			code = code.trim();
+			//console.log(code);
+			db.collection(TRANSFER_ADVANCE_TABLE).find({"code" : code}).sort({"date" : -1}).toArray(function(err, res) {
+					result = res[0];
+					//console.log(result.code + " " + result.ddx60 + " " + result.pddx60 + " " + result.fund60 + " " + result.pfund60 + " " + result.hide60 + " " + result.phide60);
+					console.log(result.phide10);
+					console.log(getDiscrete(result.phide10, 7));
+					mapcb();
+				});
+				
+		}, function(err) {
+		});
 		
 		res.json({name: 1000});
 		
@@ -353,8 +413,9 @@ exports.setup = function (app, io) {
 	
 	var retrieveAdvance = function(codes, cb) {
 		async.each(codes, function(code, callback) {
+			code = code.trim();
 			var date = moment().format('YYYY/MM/DD');
-			var url = KDailyAdvanceUrl + code.trim() + KDailyAdvancePost + date;
+			var url = KDailyAdvanceUrl + code + KDailyAdvancePost + date;
 			
 			doRequestAdvance(url, code, callback);
 		}, function(err) {
@@ -453,32 +514,39 @@ exports.setup = function (app, io) {
 				obj.up90 = getDaysOfUp(stockList, 90);
 				obj.up120 = getDaysOfUp(stockList, 120);
 				
+				if(obj.up > 0) {
+					obj.positive = 1;
+				}
+				else {
+					obj.positive = 0;
+				}
+				
 				//4, calculate discrete for ma
-				obj.discretema5 = getDiscrete(obj.ma, obj.ma5);
-				obj.discretema10 = getDiscrete(obj.ma5, obj.ma10);
-				obj.discretema20 = getDiscrete(obj.ma10, obj.ma20);
-				obj.discretema30 = getDiscrete(obj.ma20, obj.ma30);
-				obj.discretema60 = getDiscrete(obj.ma30, obj.ma60);
-				obj.discretema90 = getDiscrete(obj.ma60, obj.ma90);
-				obj.discretema120 = getDiscrete(obj.ma90, obj.ma120);
+				obj.discretema = getDiscrete(obj.ma, obj.ma5);
+				obj.discretema5 = getDiscrete(obj.ma5, obj.ma10);
+				obj.discretema10 = getDiscrete(obj.ma10, obj.ma20);
+				obj.discretema20 = getDiscrete(obj.ma20, obj.ma30);
+				obj.discretema30 = getDiscrete(obj.ma30, obj.ma60);
+				obj.discretema60 = getDiscrete(obj.ma60, obj.ma90);
+				obj.discretema90 = getDiscrete(obj.ma90, obj.ma120);
 				
 				//5, calculate discrete for hsl
-				obj.discretehsl5 = getDiscrete(obj.hsl, obj.hsl5);
-				obj.discretehsl10 = getDiscrete(obj.hsl5, obj.hsl10);
-				obj.discretehsl20 = getDiscrete(obj.hsl10, obj.hsl20);
-				obj.discretehsl30 = getDiscrete(obj.hsl20, obj.hsl30);
-				obj.discretehsl60 = getDiscrete(obj.hsl30, obj.hsl60);
-				obj.discretehsl90 = getDiscrete(obj.hsl60, obj.hsl90);
-				obj.discretehsl120 = getDiscrete(obj.hsl90, obj.hsl120);
+				obj.discretehsl = getDiscrete(obj.hsl, obj.hsl5);
+				obj.discretehsl5 = getDiscrete(obj.hsl5, obj.hsl10);
+				obj.discretehsl10 = getDiscrete(obj.hsl10, obj.hsl20);
+				obj.discretehsl20 = getDiscrete(obj.hsl20, obj.hsl30);
+				obj.discretehsl30 = getDiscrete(obj.hsl30, obj.hsl60);
+				obj.discretehsl60 = getDiscrete(obj.hsl60, obj.hsl90);
+				obj.discretehsl90 = getDiscrete(obj.hsl90, obj.hsl120);
 				
 				//6, calculate discrete for up
-				obj.discreteup5 = getDiscrete(obj.up, obj.up5);
-				obj.discreteup10 = getDiscrete(obj.up5, obj.up10);
-				obj.discreteup20 = getDiscrete(obj.up10, obj.up20);
-				obj.discreteup30 = getDiscrete(obj.up20, obj.up30);
-				obj.discreteup60 = getDiscrete(obj.up30, obj.up60);
-				obj.discreteup90 = getDiscrete(obj.up60, obj.up90);
-				obj.discreteup120 = getDiscrete(obj.up90, obj.up120);
+				obj.discreteup = getDiscrete(obj.up, obj.up5);
+				obj.discreteup5 = getDiscrete(obj.up5, obj.up10);
+				obj.discreteup10 = getDiscrete(obj.up10, obj.up20);
+				obj.discreteup20 = getDiscrete(obj.up20, obj.up30);
+				obj.discreteup30 = getDiscrete(obj.up30, obj.up60);
+				obj.discreteup60 = getDiscrete(obj.up60, obj.up90);
+				obj.discreteup90 = getDiscrete(obj.up90, obj.up120);
 				
 				db.collection(TRANSFER_BASIC_TABLE).insert(obj, {w:1}, function(err, result) {
 					if (err) {
@@ -560,58 +628,64 @@ exports.setup = function (app, io) {
 				obj.phide120 = getDaysOfPositiveHideIntensity(stockList, 120);
 				
 				//7, discrete for ddx
-				obj.discreteddx5 = getDiscrete(obj.ddx, obj.ddx5);
-				obj.discreteddx10 = getDiscrete(obj.ddx5, obj.ddx10);
-				obj.discreteddx20 = getDiscrete(obj.ddx10, obj.ddx20);
-				obj.discreteddx30 = getDiscrete(obj.ddx20, obj.ddx30);
-				obj.discreteddx60 = getDiscrete(obj.ddx30, obj.ddx60);
-				obj.discreteddx90 = getDiscrete(obj.ddx60, obj.ddx90);
-				obj.discreteddx120 = getDiscrete(obj.ddx90, obj.ddx120);
+				obj.discreteddx = getDiscrete(obj.ddx, 0);
+				obj.discreteddx5 = getDiscrete(obj.ddx5, 0);
+				obj.discreteddx10 = getDiscrete(obj.ddx10, 0);
+				obj.discreteddx20 = getDiscrete(obj.ddx20, 0);
+				obj.discreteddx30 = getDiscrete(obj.ddx30, 0);
+				obj.discreteddx60 = getDiscrete(obj.ddx60, 0);
+				obj.discreteddx90 = getDiscrete(obj.ddx90, 0);
+				obj.discreteddx120 = getDiscrete(obj.ddx120, 0);
 				
 				//8, discrete for pddx
-				obj.discretepddx5 = getDiscrete(obj.pddx, 3);
-				obj.discretepddx10 = getDiscrete(obj.pddx5, 5);
-				obj.discretepddx20 = getDiscrete(obj.pddx10, 10);
-				obj.discretepddx30 = getDiscrete(obj.pddx20, 15);
-				obj.discretepddx60 = getDiscrete(obj.pddx30, 30);
-				obj.discretepddx90 = getDiscrete(obj.pddx60, 45);
-				obj.discretepddx120 = getDiscrete(obj.pddx90, 60);
+				obj.discretepddx = getDiscrete(obj.ddx, 0);
+				obj.discretepddx5 = getDiscrete(obj.pddx5, 3);
+				obj.discretepddx10 = getDiscrete(obj.pddx10, 5);
+				obj.discretepddx20 = getDiscrete(obj.pddx20, 10);
+				obj.discretepddx30 = getDiscrete(obj.pddx30, 15);
+				obj.discretepddx60 = getDiscrete(obj.pddx60, 30);
+				obj.discretepddx90 = getDiscrete(obj.pddx90, 45);
+				obj.discretepddx120 = getDiscrete(obj.pddx120, 60);
 				
 				//9, discrete for fund
-				obj.discretefund5 = getDiscrete(obj.fund, obj.fund5);
-				obj.discretefund10 = getDiscrete(obj.fund5, obj.fund10);
-				obj.discretefund20 = getDiscrete(obj.fund10, obj.fund20);
-				obj.discretefund30 = getDiscrete(obj.fund20, obj.fund30);
-				obj.discretefund60 = getDiscrete(obj.fund30, obj.fund60);
-				obj.discretefund90 = getDiscrete(obj.fund60, obj.fund90);
-				obj.discretefund120 = getDiscrete(obj.fund90, obj.fund120);
+				obj.discretefund = getDiscrete(obj.fund, 0);
+				obj.discretefund5 = getDiscrete(obj.fund5, 0);
+				obj.discretefund10 = getDiscrete(obj.fund10, 0);
+				obj.discretefund20 = getDiscrete(obj.fund20, 0);
+				obj.discretefund30 = getDiscrete(obj.fund30, 0);
+				obj.discretefund60 = getDiscrete(obj.fund60, 0);
+				obj.discretefund90 = getDiscrete(obj.fund90, 0);
+				obj.discretefund120 = getDiscrete(obj.fund120, 0);
 				
 				//10, discrete for pfund
-				obj.discretepfund5 = getDiscrete(obj.pfund, 3);
-				obj.discretepfund10 = getDiscrete(obj.pfund5, 5);
-				obj.discretepfund20 = getDiscrete(obj.pfund10, 10);
-				obj.discretepfund30 = getDiscrete(obj.pfund20, 15);
-				obj.discretepfund60 = getDiscrete(obj.pfund30, 30);
-				obj.discretepfund90 = getDiscrete(obj.pfund60, 45);
-				obj.discretepfund120 = getDiscrete(obj.pfund90, 60);
+				obj.discretepfund = getDiscrete(obj.fund, 0);
+				obj.discretepfund5 = getDiscrete(obj.pfund5, 3);
+				obj.discretepfund10 = getDiscrete(obj.pfund10, 5);
+				obj.discretepfund20 = getDiscrete(obj.pfund20, 10);
+				obj.discretepfund30 = getDiscrete(obj.pfund30, 15);
+				obj.discretepfund60 = getDiscrete(obj.pfund60, 30);
+				obj.discretepfund90 = getDiscrete(obj.pfund90, 45);
+				obj.discretepfund120 = getDiscrete(obj.pfund120, 60);
 				
 				//11, discrete for hide
-				obj.discretehide5 = getDiscrete(obj.hide, obj.hide5);
-				obj.discretehide10 = getDiscrete(obj.hide5, obj.hide10);
-				obj.discretehide20 = getDiscrete(obj.hide10, obj.hide20);
-				obj.discretehide30 = getDiscrete(obj.hide20, obj.hide30);
-				obj.discretehide60 = getDiscrete(obj.hide30, obj.hide60);
-				obj.discretehide90 = getDiscrete(obj.hide60, obj.hide90);
-				obj.discretehide120 = getDiscrete(obj.hide90, obj.hide120);
+				obj.discretehide = getDiscrete(obj.hide, 0);
+				obj.discretehide5 = getDiscrete(obj.hide5, 0);
+				obj.discretehide10 = getDiscrete(obj.hide10, 0);
+				obj.discretehide20 = getDiscrete(obj.hide20, 0);
+				obj.discretehide30 = getDiscrete(obj.hide30, 0);
+				obj.discretehide60 = getDiscrete(obj.hide60, 0);
+				obj.discretehide90 = getDiscrete(obj.hide90, 0);
+				obj.discretehide120 = getDiscrete(obj.hide120, 0);
 				
 				//12, discrete for phide
-				obj.discretephide5 = getDiscrete(obj.phide, 3);
-				obj.discretephide10 = getDiscrete(obj.phide5, 5);
-				obj.discretephide20 = getDiscrete(obj.phide10, 10);
-				obj.discretephide30 = getDiscrete(obj.phide20, 15);
-				obj.discretephide60 = getDiscrete(obj.phide30, 30);
-				obj.discretephide90 = getDiscrete(obj.phide60, 45);
-				obj.discretephide120 = getDiscrete(obj.phide90, 60);
+				obj.discretephide = getDiscrete(obj.hide, 0);
+				obj.discretephide5 = getDiscrete(obj.phide5, 3);
+				obj.discretephide10 = getDiscrete(obj.phide10, 5);
+				obj.discretephide20 = getDiscrete(obj.phide20, 10);
+				obj.discretephide30 = getDiscrete(obj.phide30, 15);
+				obj.discretephide60 = getDiscrete(obj.phide60, 30);
+				obj.discretephide90 = getDiscrete(obj.phide90, 45);
+				obj.discretephide120 = getDiscrete(obj.phide120, 60);
 				
 				db.collection(TRANSFER_ADVANCE_TABLE).insert(obj, {w:1}, function(err, result) {
 					if (err) {
