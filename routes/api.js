@@ -1,7 +1,6 @@
 var request = require('request');
 var fs = require('fs');
 var mongo = require('mongodb');
-var moment = require('moment');
 var async = require('async');
 var SimpleJson2Csv = require('simple-json2csv');
 
@@ -13,7 +12,7 @@ var STOCK_ADVANCE_TABLE = 'advance';
 var TRANSFER_BASIC_TABLE = 'transfer_basic';
 var TRANSFER_ADVANCE_TABLE = 'transfer_advance';
 
-var TRANSFER_START_DATE = '2013-01-01';
+var TRANSFER_START_DATE = '2014-10-01';
 var MONGO_HOST = 'localhost';
 
 var stockCodes;
@@ -23,7 +22,6 @@ var dates;
 var CSV_FIELDS = [
 	{"name": "code", "header": "code"},
 	{"name": "date", "header": "date"},
-	{"name": "positive", "header": "positive"},
 	
 	{"name": "ma", "header": "ma"},
 	{"name": "ma5", "header": "ma5"},
@@ -68,7 +66,6 @@ var CSV_FIELDS = [
 	{"name": "ddx30", "header": "ddx30"},
 	{"name": "ddx60", "header": "ddx60"},
 	{"name": "ddx90", "header": "ddx90"},
-	{"name": "ddx120", "header": "ddx120"},
 	
 	{"name": "pddx", "header": "pddx"},
 	{"name": "pddx5", "header": "pddx5"},
@@ -77,7 +74,6 @@ var CSV_FIELDS = [
 	{"name": "pddx30", "header": "pddx30"},
 	{"name": "pddx60", "header": "pddx60"},
 	{"name": "pddx90", "header": "pddx90"},
-	{"name": "pddx120", "header": "pddx120"},
 	
 	{"name": "fund", "header": "fund"},
 	{"name": "fund5", "header": "fund5"},
@@ -86,7 +82,6 @@ var CSV_FIELDS = [
 	{"name": "fund30", "header": "fund30"},
 	{"name": "fund60", "header": "fund60"},
 	{"name": "fund90", "header": "fund90"},
-	{"name": "fund120", "header": "fund120"},
 	
 	{"name": "pfund", "header": "pfund"},
 	{"name": "pfund5", "header": "pfund5"},
@@ -95,7 +90,6 @@ var CSV_FIELDS = [
 	{"name": "pfund30", "header": "pfund30"},
 	{"name": "pfund60", "header": "pfund60"},
 	{"name": "pfund90", "header": "pfund90"},
-	{"name": "pfund120", "header": "pfund120"},
 	
 	{"name": "hide", "header": "hide"},
 	{"name": "hide5", "header": "hide5"},
@@ -104,7 +98,6 @@ var CSV_FIELDS = [
 	{"name": "hide30", "header": "hide30"},
 	{"name": "hide60", "header": "hide60"},
 	{"name": "hide90", "header": "hide90"},
-	{"name": "hide120", "header": "hide120"},
 	
 	{"name": "phide", "header": "phide"},
 	{"name": "phide5", "header": "phide5"},
@@ -113,7 +106,6 @@ var CSV_FIELDS = [
 	{"name": "phide30", "header": "phide30"},
 	{"name": "phide60", "header": "phide60"},
 	{"name": "phide90", "header": "phide90"},
-	{"name": "phide120", "header": "phide120"},
 	
 	{"name": "", "header": ""},
 	{"name": "discretema", "header": "discretema"},
@@ -155,7 +147,6 @@ var CSV_FIELDS = [
 	{"name": "discreteddx30", "header": "discreteddx30"},
 	{"name": "discreteddx60", "header": "discreteddx60"},
 	{"name": "discreteddx90", "header": "discreteddx90"},
-	{"name": "discreteddx120", "header": "discreteddx120"},
 	
 	{"name": "discretepddx", "header": "discretepddx"},
 	{"name": "discretepddx5", "header": "discretepddx5"},
@@ -164,7 +155,6 @@ var CSV_FIELDS = [
 	{"name": "discretepddx30", "header": "discretepddx30"},
 	{"name": "discretepddx60", "header": "discretepddx60"},
 	{"name": "discretepddx90", "header": "discretepddx90"},
-	{"name": "discretepddx120", "header": "discretepddx120"},
 	
 	{"name": "discretefund", "header": "discretefund"},
 	{"name": "discretefund5", "header": "discretefund5"},
@@ -173,7 +163,6 @@ var CSV_FIELDS = [
 	{"name": "discretefund30", "header": "discretefund30"},
 	{"name": "discretefund60", "header": "discretefund60"},
 	{"name": "discretefund90", "header": "discretefund90"},
-	{"name": "discretefund120", "header": "discretefund120"},
 	
 	{"name": "discretepfund", "header": "discretepfund"},
 	{"name": "discretepfund5", "header": "discretepfund5"},
@@ -182,7 +171,6 @@ var CSV_FIELDS = [
 	{"name": "discretepfund30", "header": "discretepfund30"},
 	{"name": "discretepfund60", "header": "discretepfund60"},
 	{"name": "discretepfund90", "header": "discretepfund90"},
-	{"name": "discretepfund120", "header": "discretepfund120"},
 	
 	{"name": "discretehide", "header": "discretehide"},
 	{"name": "discretehide5", "header": "discretehide5"},
@@ -191,7 +179,6 @@ var CSV_FIELDS = [
 	{"name": "discretehide30", "header": "discretehide30"},
 	{"name": "discretehide60", "header": "discretehide60"},
 	{"name": "discretehide90", "header": "discretehide90"},
-	{"name": "discretehide120", "header": "discretehide120"},
 	
 	{"name": "discretephide", "header": "discretephide"},
 	{"name": "discretephide5", "header": "discretephide5"},
@@ -200,7 +187,10 @@ var CSV_FIELDS = [
 	{"name": "discretephide30", "header": "discretephide30"},
 	{"name": "discretephide60", "header": "discretephide60"},
 	{"name": "discretephide90", "header": "discretephide90"},
-	{"name": "discretephide120", "header": "discretephide120"}
+	
+	
+	{"name": "", "header": ""},
+	{"name": "positive", "header": "positive"}
 ];
 
 var HOLIDAYS = ["2012-01-02", "2012-01-03", "2012-01-23", "2012-01-24", "2012-01-25", "2012-01-26", "2012-01-27", "2012-04-02", "2012-04-03", "2012-04-04", "2012-04-30", "2012-05-01", "2012-05-02", "2012-06-22", "2012-10-01", "2012-10-02", "2012-10-03", "2012-10-04", "2012-10-05",
@@ -209,13 +199,13 @@ var HOLIDAYS = ["2012-01-02", "2012-01-03", "2012-01-23", "2012-01-24", "2012-01
 
 exports.init = function () {
 	//load stock codes first
-	stockCodes = fs.readFileSync(STOCK_CODES_PATH).toString().split("\n");
-	//stockCodes = ['sh000001', 'sz000709'];
+	//stockCodes = fs.readFileSync(STOCK_CODES_PATH).toString().split("\n");
+	stockCodes = ['sh000001', 'sz000709'];
 	console.log('Load Stock Codes ready');
 	
 	//load transfer dates
 	//var begin = '2013-01-01';
-	var end = moment().format('YYYY-MM-DD');
+	var end = new Date().format('YYYY-MM-DD');
 	dates = getWorkingDays(TRANSFER_START_DATE, end);
 	console.log('Load Transfer dates ready, from ' + TRANSFER_START_DATE + ' to ' + end);
 	
@@ -245,7 +235,7 @@ function isHolidayOrWeekend(date) {
 		return true;
 	}
 	return false;
-};
+}
 
 function getWorkingDays(startDate, endDate) {
 	var start = new Date(startDate);
@@ -255,18 +245,27 @@ function getWorkingDays(startDate, endDate) {
 	
 	var dateList = [];
 	for(var i = 0; i < days; i++) {
-		var date = moment(start).format('YYYY-MM-DD');
+		var date = start.format('YYYY-MM-DD');
 		if(!isHolidayOrWeekend(date)){
 			dateList.push(date);
 		}
 		start.setDate(start.getDate() + 1);
 	}
 	return dateList;
-};
+}
 	
 function getDaysBetween(startDate, endDate) {
 	return (endDate - startDate) / (1000*3600*24) + 1;
-};
+}
+
+function getAfterWorkingDay(date, days) {
+	var d = new Date(date);
+	d.setDate(d.getDate() + days);
+	while(isHolidayOrWeekend(d.format('YYYY-MM-DD'))){
+		d.setDate(d.getDate() + 1);
+	}
+	return d.getTime();
+}
 
 function extendObj(o, n, override) {
 	for ( var p in n){
@@ -274,7 +273,41 @@ function extendObj(o, n, override) {
 			o[p] = n[p];
 		}
 	}
-};
+}
+
+Date.prototype.format=function(fmt) {         
+    var o = {         
+    "M+" : this.getMonth()+1,      
+    "D+" : this.getDate(),
+    "h+" : this.getHours()%12 == 0 ? 12 : this.getHours()%12,
+    "H+" : this.getHours(),
+    "m+" : this.getMinutes(), 
+    "s+" : this.getSeconds(),
+    "q+" : Math.floor((this.getMonth()+3)/3), 
+    "S" : this.getMilliseconds()
+    };         
+    var week = {         
+    "0" : "/u65e5",         
+    "1" : "/u4e00",         
+    "2" : "/u4e8c",         
+    "3" : "/u4e09",         
+    "4" : "/u56db",         
+    "5" : "/u4e94",         
+    "6" : "/u516d"        
+    };         
+    if(/(Y+)/.test(fmt)){         
+        fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));         
+    }         
+    if(/(E+)/.test(fmt)){         
+        fmt=fmt.replace(RegExp.$1, ((RegExp.$1.length>1) ? (RegExp.$1.length>2 ? "/u661f/u671f" : "/u5468") : "")+week[this.getDay()+""]);         
+    }         
+    for(var k in o){         
+        if(new RegExp("("+ k +")").test(fmt)){         
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));         
+        }         
+    }         
+    return fmt;         
+} 
 
 exports.setup = function (app, io) {
 	exports.init();
@@ -333,8 +366,30 @@ exports.setup = function (app, io) {
 							delete oldObj.code;
 							delete oldObj.date;
 							
-							obj.date = moment(obj.date).format('YYYY/MM/DD');
+							obj.date = new Date(obj.date).format('YYYY-MM-DD');
 							extendObj(obj, oldObj);
+							callback(null, obj);
+						}
+					});
+				}, function(err, res) {
+					if (!err) {
+						cb(null, res);
+					}
+				});
+			}, function(data, cb) {
+				async.map(data, function(obj, callback) {
+					var date = getAfterWorkingDay(obj.date, 1);
+					db.collection(STOCK_BASIC_TABLE).find({"code" : obj.code, "date": date}).toArray(function(err, result) {
+						if (!err) {
+							if(result.length > 0) {
+								res = result[0];
+								if(res.changeRate > 0) {
+									obj.positive = 1;
+								}
+								else {
+									obj.positive = 0;
+								}
+							}
 							callback(null, obj);
 						}
 					});
@@ -390,7 +445,7 @@ exports.setup = function (app, io) {
 	var KDailyAdvancePost = "/kday.js?";
 	
 	var retrieveBasic = function(codes, cb) {
-		async.each(codes, function(code, callback) {
+		async.eachSeries(codes, function(code, callback) {
 			var url = '';
 			code = code.trim();
 			if(code == 'sh000001'){
@@ -414,7 +469,7 @@ exports.setup = function (app, io) {
 	var retrieveAdvance = function(codes, cb) {
 		async.each(codes, function(code, callback) {
 			code = code.trim();
-			var date = moment().format('YYYY/MM/DD');
+			var date = new Date().format('YYYY/MM/DD');
 			var url = KDailyAdvanceUrl + code + KDailyAdvancePost + date;
 			
 			doRequestAdvance(url, code, callback);
@@ -433,7 +488,7 @@ exports.setup = function (app, io) {
 		async.each(dates, function(date, callback1) {
 			async.eachSeries(codes, function(code, callback2) {
 				code = code.trim();
-				var d = moment(date, 'YYYY-MM-DD').unix() * 1000;
+				var d = new Date(date).getTime();
 				doTransferBasic(code, d, callback2);
 			}, function(err) {
 				if (err) {
@@ -456,7 +511,7 @@ exports.setup = function (app, io) {
 		async.each(dates, function(date, callback1) {
 			async.eachSeries(codes, function(code, callback2) {
 				code = code.trim();
-				var d = moment(date, 'YYYY-MM-DD').unix() * 1000;
+				var d = new Date(date).getTime();
 				doTransferAdvance(code, d, callback2);
 			}, function(err) {
 				if (err) {
@@ -513,13 +568,6 @@ exports.setup = function (app, io) {
 				obj.up60 = getDaysOfUp(stockList, 60);
 				obj.up90 = getDaysOfUp(stockList, 90);
 				obj.up120 = getDaysOfUp(stockList, 120);
-				
-				if(obj.up > 0) {
-					obj.positive = 1;
-				}
-				else {
-					obj.positive = 0;
-				}
 				
 				//4, calculate discrete for ma
 				obj.discretema = getDiscrete(obj.ma, obj.ma5);
@@ -736,7 +784,7 @@ exports.setup = function (app, io) {
 		for(var i in records) {
 			var stockObj = {};
 			stockObj.code = code;
-			stockObj.date = moment(records[i][0], 'YYYY-MM-DD').unix() * 1000;
+			stockObj.date = new Date(records[i][0]).getTime();
 			stockObj.opening = parseFloat(records[i][1]);
 			stockObj.max = parseFloat(records[i][2]);
 			stockObj.close = parseFloat(records[i][3]);
@@ -766,7 +814,7 @@ exports.setup = function (app, io) {
 			record = records[i].split(',')
 			var stockObj = {};
 			stockObj.code = code;
-			stockObj.date = moment(record[0], 'YYYY/MM/DD').unix() * 1000;
+			stockObj.date = new Date(records[i][0]).getTime();
 			stockObj.fund = parseFloat(record[6]);
 			stockObj.hide = parseFloat(record[7]);
 			stockObj.ddx = parseFloat(record[9]);
